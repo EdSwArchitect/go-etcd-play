@@ -6,3 +6,6 @@ Tried to load JSON into etcd. The go client only worked without doing the JSON p
 Used another application to load it.
 
 Use this script to load the JSON config file: https://github.com/etcd-io/etcd/issues/8205#issuecomment-313230911
+
+Before running
+> export ETCDCTL_API=3

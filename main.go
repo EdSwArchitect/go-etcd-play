@@ -70,14 +70,37 @@ func main() {
 		if err2 != nil {
 			log.Fatalf("JSON parsing error: %s\n", err2)
 		} else {
-			log.Printf("\n------\nObj: %+v\n", commonLog)
+			// log.Printf("\n------\nObj: %+v\n", commonLog)
 
 			g := commonLog.Writers.(map[string]interface{})
 
 			for k, v := range g {
-				log.Printf("\tKey: %s. Value: %+v\n", k, v)
+
+				innerMap := v.(map[string]interface{})
+				log.Printf("\tKey: %s\n", k)
+
+				for kk, vv := range innerMap {
+					log.Printf("\t\tKeyKey: %s. Value: %+v\n", kk, vv)
+				}
+
+				log.Println("--------")
+				// log.Printf("\tKey: %s. Type: %s. Value: %+v\n-----\n", k, reflect.TypeOf(v).String(), v)
 			}
 		}
 	}
+
+	log.Print("\n\n\n---- Going for all keys ----\n\n\n")
+
+	ctx, cancel = context.WithTimeout(context.Background(), requestTimeout)
+	resp, err = cli.Get(ctx, " ", clientv3.WithLimit(0))
+	// resp, err = cli.Get(ctx, "Operations/Agent")
+	cancel()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Resp.Count: %d\n", resp.Count)
+	log.Printf("Resp.More: %v\n", resp.More)
+	log.Printf("Header: %s\n", resp.Header.String())
 
 }

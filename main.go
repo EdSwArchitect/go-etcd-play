@@ -16,7 +16,6 @@ var (
 )
 
 func main() {
-	log.Println("Hi, Ed")
 
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints:          endpoints,
@@ -28,27 +27,11 @@ func main() {
 	}
 	defer cli.Close()
 
-	_, err = cli.Put(context.TODO(), "foo", "bar")
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Println("Getting Common/Log")
 
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
-	resp, err := cli.Get(ctx, "foo")
-	cancel()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, ev := range resp.Kvs {
-		log.Printf("%s : %s\n", ev.Key, ev.Value)
-	}
 
-	// resp, err = cli.Get(ctx, "/Common/Log")
-	log.Println("Starting another one...")
-
-	ctx, cancel = context.WithTimeout(context.Background(), requestTimeout)
-
-	resp, err = cli.Get(ctx, "Common/Log", clientv3.WithLimit(0))
+	resp, err := cli.Get(ctx, "Common/Log", clientv3.WithLimit(0))
 	// resp, err = cli.Get(ctx, "Operations/Agent")
 	cancel()
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/pkg/transport"
 )
 
 var (
@@ -16,12 +17,28 @@ var (
 )
 
 func main() {
-	log.Println("Hi, Ed")
 
-	cli, err := clientv3.New(clientv3.Config{
+	tlsInfo := transport.TLSInfo{
+		CertFile:      "/Users/ebrown/certs2/dc1-client-consul-0.pem",
+		KeyFile:       "/Users/ebrown/certs2/dc1-client-consul-0-key.pem",
+		TrustedCAFile: "/Users/ebrown/certs2/consul-agent-ca.pem",
+	}
+
+	tlsConfig, err := tlsInfo.ClientConfig()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Not a problem with TLS configurtion: %+v\n", tlsConfig)
+
+	var cli *clientv3.Client
+
+	cli, err = clientv3.New(clientv3.Config{
 		Endpoints:          endpoints,
 		DialTimeout:        dialTimeout,
 		MaxCallRecvMsgSize: 4096,
+		TLS:                tlsConfig,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -40,13 +57,20 @@ func main() {
 		log.Fatal(err)
 	}
 	for _, ev := range resp.Kvs {
-		log.Printf("%s : %s\n", ev.Key, ev.Value)
+		log.Printf("Retrival of %s : %s\n", ev.Key, ev.Value)
 	}
 
 	// resp, err = cli.Get(ctx, "/Common/Log")
 	log.Println("Starting another one...")
 
 	ctx, cancel = context.WithTimeout(context.Background(), requestTimeout)
+
+	// If I wanted to do a recursive get
+	// opts := []clientv3.OpOption{
+	// 	clientv3.WithPrefix(),
+	// 	clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend),
+	// 	clientv3.WithLimit(10),
+	// }
 
 	resp, err = cli.Get(ctx, "Common/Log", clientv3.WithLimit(0))
 	// resp, err = cli.Get(ctx, "Operations/Agent")

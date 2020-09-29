@@ -47,3 +47,21 @@ From the command line, you can retrieve what's in ETCD with ETCD CTL
 >
 > Common/Log
 > {"disableLog4J":true,"maxHistorical":1000,"writers":{"console":{"type":"console","enabled":true,"levels":"ACCESS,ERROR,WARN,INFO,METRIC,DEBUG,DEVELOPMENT,SAMPLE","stdout":true,"stderr":false,"colorize":false,"bundling":true},"file":{"type":"file","enabled":false,"levels":"ACCESS,ERROR,WARN,INFO,DEBUG,DEVELOPMENT","folderPath":"./logs","filenamePrefix":"Logging","filenameSuffix":".log","delay":5000,"rollOverDays":5},"sampling":{"type":"file","enabled":false,"levels":"SAMPLE","folderPath":"./logs","filenamePrefix":"Sampling","filenameSuffix":".log","delay":5000,"rollOverDays":5},"metrics":{"type":"file","enabled":false,"levels":"METRIC","folderPath":"./logs","filenamePrefix":"Metrics","filenameSuffix":".log","delay":5000,"rollOverDays":5}}}
+
+----
+
+## TLS Configuration
+
+Starting ETCD with TLS
+
+> ETCDCTL_API=3 etcd --name=edwin --data-dir=/Users/ebrown/etcd_data \
+   --trusted-ca-file=/Users/ebrown/certs2/consul-agent-ca.pem \
+  --cert-file=/Users/ebrown/certs2/dc1-server-consul-0.pem \
+   --key-file=/Users/ebrown/certs2/dc1-server-consul-0-key.pem \
+   --listen-peer-urls https://localhost:2380 \
+   --listen-client-urls https://localhost:2379 \
+   --advertise-client-urls https://localhost:2380  \
+ --peer-trusted-ca-file=/Users/ebrown/certs2/consul-agent-ca.pem \
+ --peer-cert-file=/Users/ebrown/certs2/dc1-cli-consul-0.pem \
+ --peer-key-file=/Users/ebrown/certs2/dc1-cli-consul-0-key.pem
+

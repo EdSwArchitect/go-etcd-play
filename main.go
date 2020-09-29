@@ -45,34 +45,12 @@ func main() {
 	}
 	defer cli.Close()
 
-	_, err = cli.Put(context.TODO(), "foo", "bar")
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Println("Getting Common/Log")
 
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
-	resp, err := cli.Get(ctx, "foo")
-	cancel()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, ev := range resp.Kvs {
-		log.Printf("Retrival of %s : %s\n", ev.Key, ev.Value)
-	}
 
-	// resp, err = cli.Get(ctx, "/Common/Log")
-	log.Println("Starting another one...")
+	resp, err := cli.Get(ctx, "Common/Log", clientv3.WithLimit(0))
 
-	ctx, cancel = context.WithTimeout(context.Background(), requestTimeout)
-
-	// If I wanted to do a recursive get
-	// opts := []clientv3.OpOption{
-	// 	clientv3.WithPrefix(),
-	// 	clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend),
-	// 	clientv3.WithLimit(10),
-	// }
-
-	resp, err = cli.Get(ctx, "Common/Log", clientv3.WithLimit(0))
 	// resp, err = cli.Get(ctx, "Operations/Agent")
 	cancel()
 	if err != nil {

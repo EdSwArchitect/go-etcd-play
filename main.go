@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"log"
 	"time"
 
@@ -18,28 +19,46 @@ var (
 
 func main() {
 
-	tlsInfo := transport.TLSInfo{
-		CertFile:      "/Users/ebrown/certs2/dc1-client-consul-0.pem",
-		KeyFile:       "/Users/ebrown/certs2/dc1-client-consul-0-key.pem",
-		TrustedCAFile: "/Users/ebrown/certs2/consul-agent-ca.pem",
-	}
-
-	tlsConfig, err := tlsInfo.ClientConfig()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("Not a problem with TLS configurtion: %+v\n", tlsConfig)
-
 	var cli *clientv3.Client
+	var doTLS *bool
+	var err error
 
-	cli, err = clientv3.New(clientv3.Config{
-		Endpoints:          endpoints,
-		DialTimeout:        dialTimeout,
-		MaxCallRecvMsgSize: 4096,
-		TLS:                tlsConfig,
-	})
+	doTLS = flag.Bool("tls", false, "Use TLS processing")
+
+	flag.Parse()
+
+	if *doTLS {
+
+		tlsInfo := transport.TLSInfo{
+			CertFile:      "/Users/ebrown/certs2/dc1-client-consul-0.pem",
+			KeyFile:       "/Users/ebrown/certs2/dc1-client-consul-0-key.pem",
+			TrustedCAFile: "/Users/ebrown/certs2/consul-agent-ca.pem",
+		}
+
+		tlsConfig, err := tlsInfo.ClientConfig()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Not a problem with TLS configurtion: %+v\n", tlsConfig)
+
+		cli, err = clientv3.New(clientv3.Config{
+			Endpoints:          endpoints,
+			DialTimeout:        dialTimeout,
+			MaxCallRecvMsgSize: 4096,
+			TLS:                tlsConfig,
+		})
+	} else {
+
+		cli, err = clientv3.New(clientv3.Config{
+			Endpoints:          endpoints,
+			DialTimeout:        dialTimeout,
+			MaxCallRecvMsgSize: 4096,
+		})
+
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
